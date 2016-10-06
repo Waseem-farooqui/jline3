@@ -810,7 +810,9 @@ public class LineReaderImpl implements LineReader, Flushable
         // the string was a password. We clear the mask after this call
         if (str.length() > 0) {
             if (mask == null && !getBoolean(DISABLE_HISTORY, false)) {
-                history.add(historyLine);
+                if (!isSet(Option.HISTORY_IGNORE_SPACE) || historyLine.charAt(0) != ' ') {
+                    history.add(historyLine);
+                }
             }
         }
         return str;

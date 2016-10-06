@@ -302,6 +302,7 @@ public interface LineReader {
         COMPLETE_IN_WORD,
         DISABLE_EVENT_EXPANSION,
         HISTORY_VERIFY,
+        HISTORY_IGNORE_SPACE(true),
         HISTORY_BEEP(true),
         AUTO_MENU(true),
         AUTO_LIST(true),
