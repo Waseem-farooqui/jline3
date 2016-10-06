@@ -278,7 +278,7 @@ public class Commands {
                 + (opt.isSet("l") ? 1 : 0)
                 + (opt.isSet("A") ? 1 : 0);
         if (actions > 1) {
-            err.println("keymap: incompatible operation selection options");
+            err.println("widget: incompatible operation selection options");
             return;
         }
         if (opt.isSet("l")) {
