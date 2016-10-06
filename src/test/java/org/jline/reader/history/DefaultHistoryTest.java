@@ -9,7 +9,9 @@
 package org.jline.reader.history;
 
 import org.jline.reader.History;
-import org.jline.reader.impl.history.MemoryHistory;
+import org.jline.reader.LineReader;
+import org.jline.reader.impl.ReaderTestSupport;
+import org.jline.reader.impl.history.DefaultHistory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,17 +19,18 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Tests for {@link MemoryHistory}.
+ * Tests for {@link DefaultHistory}.
  *
  * @author <a href="mailto:mwp1@cornell.edu">Marc Prud'hommeaux</a>
  */
-public class MemoryHistoryTest
+public class DefaultHistoryTest extends ReaderTestSupport
 {
-    private MemoryHistory history;
+    private DefaultHistory history;
 
     @Before
-    public void setUp() {
-        history = new MemoryHistory();
+    public void setUp() throws Exception {
+        super.setUp();
+        history = new DefaultHistory(reader);
     }
 
     @After
@@ -51,13 +54,13 @@ public class MemoryHistoryTest
         int i=0;
         for (History.Entry entry : history) {
             assertEquals(offset + i, entry.index());
-            assertEquals(items[i++], entry.value());
+            assertEquals(items[i++], entry.line());
         }
     }
 
     @Test
     public void testOffset() {
-        history.setMaxSize(5);
+        reader.setVariable(LineReader.HISTORY_SIZE, 5);
 
         assertEquals(0, history.size());
         assertEquals(0, history.index());
@@ -81,58 +84,4 @@ public class MemoryHistoryTest
         assertEquals("f", history.get(5));
     }
 
-    @Test
-    public void testReplace() {
-        assertEquals(0, history.size());
-
-        history.add("a");
-        history.add("b");
-        history.replace("c");
-
-        assertHistoryContains(0, "a", "c");
-    }
-
-    @Test
-    public void testSet() {
-        history.add("a");
-        history.add("b");
-        history.add("c");
-
-        history.set(1, "d");
-
-        assertHistoryContains(0, "a", "d", "c");
-    }
-
-    @Test
-    public void testRemove() {
-        history.add("a");
-        history.add("b");
-        history.add("c");
-
-        history.remove(1);
-
-        assertHistoryContains(0, "a", "c");
-    }
-
-    @Test
-    public void testRemoveFirst() {
-        history.add("a");
-        history.add("b");
-        history.add("c");
-
-        history.removeFirst();
-
-        assertHistoryContains(0, "b", "c");
-    }
-
-    @Test
-    public void testRemoveLast() {
-        history.add("a");
-        history.add("b");
-        history.add("c");
-
-        history.removeLast();
-
-        assertHistoryContains(0, "a", "b");
-    }
 }

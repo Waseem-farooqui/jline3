@@ -15,7 +15,9 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import org.jline.reader.impl.history.FileHistory;
+import org.jline.reader.LineReader;
+import org.jline.reader.impl.ReaderTestSupport;
+import org.jline.reader.impl.history.DefaultHistory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,10 +30,11 @@ import static org.junit.Assert.assertEquals;
  *
  * @author <a href="mailto:gnodet@gmail.com">Guillaume Nodet</a>
  */
-public class FileHistoryTest {
+public class FileHistoryTest extends ReaderTestSupport {
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
+        super.setUp();
         new File("test").delete();
     }
 
@@ -41,14 +44,16 @@ public class FileHistoryTest {
     }
 
     private void doTestFileHistory(int count, boolean append) {
-        try {
-            FileHistory history = new FileHistory(new File("test"), append);
-            IntStream.range(0, count)
-                    .forEach(i -> history.add("cmd" + i));
-            history.flush();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        reader.setVariable(LineReader.HISTORY_FILE, new File("test"));
+        if (append) {
+            reader.setOpt(LineReader.Option.HISTORY_APPEND);
+        } else {
+            reader.unsetOpt(LineReader.Option.HISTORY_APPEND);
         }
+        DefaultHistory history = new DefaultHistory(reader);
+        IntStream.range(0, count)
+                .forEach(i -> history.add("cmd" + i));
+        history.save();
     }
 
     @Test
@@ -65,7 +70,7 @@ public class FileHistoryTest {
         List<Thread> ts = IntStream.range(0, 3)
                 .mapToObj(i -> new Thread(() -> doTestFileHistory(3, true)))
                 .collect(toList());
-        ts.stream().forEach(Thread::start);
+        ts.forEach(Thread::start);
         for (Thread t : ts) {
             t.join();
         }
